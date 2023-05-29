@@ -15,3 +15,17 @@ dependencies {
     implementation project(":common")
 
 }
+
+// frontend copy
+clean.delete fileTree("src/main/resources/static").include("**/*")
+tasks.register('copyToStatic', Copy) {
+    def staticDir = "src/main/resources/static"
+    def staticFolder = new File("$rootDir/webapp/" + staticDir)
+    if (!staticFolder.exists()) {
+        staticFolder.mkdir()
+    }
+    from project(":frontend").file("dist")
+    into staticDir
+}
+copyToStatic.dependsOn ":frontend:build"
+processResources.dependsOn copyToStatic

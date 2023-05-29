@@ -1,2 +1,2 @@
 rootProject.name = 'marsfour'
-include 'core', 'common', 'repository', 'webapp', "webservice"
+include 'core', 'common', 'repository', 'frontend', 'webapp', "webservice"

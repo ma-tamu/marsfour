@@ -1,0 +1,13 @@
+plugins{
+    id "base"
+    id "com.github.node-gradle.node" version "5.0.0"
+}
+
+bootJar {
+    enabled = false
+}
+
+tasks.register('npmBuild', NpmTask) {
+    args = ["run", "build"]
+}
+build.dependsOn npmBuild
