@@ -1,0 +1,85 @@
+server:
+  servlet:
+    context-path: /marsfour
+  port: 8082
+
+logging:
+  level:
+    root: debug
+
+spring:
+  datasource:
+    url: ${marsfour.datasource.url}
+    name: ${marsfour.datasource.name}
+    password: ${marsfour.datasource.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      auto-commit: false
+      jdbc-url: ${spring.datasource.url}
+      username: ${spring.datasource.name}
+      password: ${spring.datasource.password}
+      driver-class-name: ${spring.datasource.driver-class-name}
+      schema: ${marsfour.datasource.schema}
+      connection-test-query: SELECT 1
+  flyway:
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.name}
+    password: ${spring.datasource.password}
+    schemas: ${marsfour.datasource.schema}
+    driver-class-name: ${spring.datasource.driver-class-name}
+    table: marsfour_version
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+  security:
+    oauth2:
+      client:
+        provider:
+          earthly:
+            authorization-uri: ${earthly.authorization.base-url}/oauth2/authorize
+            token-uri: ${earthly.authorization.base-url}/oauth2/token
+            jwk-set-uri: ${earthly.authorization.base-url}/oauth2/jwks
+            user-info-authentication-method: client_secret_post
+#            user-name-attribute:
+            user-info-uri: ${earthly.authorization.base-url}/userinfo
+#            issuer-uri: ${earthly.authorization.base-url}
+        registration:
+          earthly:
+            authorization-grant-type: authorization_code
+            client-name: mars
+            client-id: d158be41db87d7055fa9548fe9c0e3cb685983fedb4f2d648d7a25c046d72d9d
+            client-secret: 39f87f3d5015a5af0ed684624c867481cf15e81cd4abfed038c49c72ca84fb9a
+            provider: earthly
+            client-authentication-method: client_secret_post
+            redirect-uri: http://127.0.0.1:${server.port}${server.servlet.context-path}/login/oauth2/code/earthly
+            scope:
+              - openid
+              - me
+  web:
+    resources:
+      chain:
+        strategy:
+          content:
+            enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, quickTEST, fullTEST, awesomeTEST
+      base-path: /
+
+
+
+marsfour:
+  datasource:
+    host: ${MYSQL_HOST:localhost}
+    port: ${MYSQL_PORT:13306}
+    name: ${MYSQL_USER_NAME:mars}
+    password: ${MYSQL_PASSWORD:mars}
+    schema: ${MYSQL_SCHEMA:mars}
+    url: jdbc:mysql://${marsfour.datasource.host}:${marsfour.datasource.port}/${marsfour.datasource.schema}?allowPublicKeyRetrieval=true&useSSL=false
+
+earthly:
+  authorization:
+    base-url: http://localhost:9000/earthly

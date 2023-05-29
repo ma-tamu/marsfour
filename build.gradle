@@ -1,0 +1,90 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:3.1.0"
+        classpath "io.spring.gradle:dependency-management-plugin:1.1.0"
+        classpath 'com.mysql:mysql-connector-j:8.0.33'
+        classpath "com.github.spotbugs.snom:spotbugs-gradle-plugin:5.0.8"
+        classpath "de.aaschmid:gradle-cpd-plugin:3.3"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.4.0.2513"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.42.0"
+        classpath "org.flywaydb:flyway-gradle-plugin:9.18.0"
+        classpath "org.flywaydb:flyway-mysql:9.18.0"
+        classpath "org.domaframework.doma:codegen:2.0.0"
+        classpath "org.domaframework.doma:compile:2.0.0"
+    }
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+}
+
+subprojects {
+
+    ext {
+        datasourceHost = System.getenv("MYSQL_HOST") ?: "localhost"
+        datasourcePort = System.getenv("MYSQL_PORT") ?: "13306"
+        datasourceUsername = System.getenv("MYSQL_USER_NAME") ?: "mars"
+        datasourcePassword = System.getenv("MYSQL_PASSWORD") ?: "mars"
+        datasourceSchema = System.getenv("MYSQL_SCHEMA") ?: "mars"
+        datasourceUrl = "jdbc:mysql://$datasourceHost:$datasourcePort/$datasourceSchema?useSSL=false&allowPublicKeyRetrieval=true"
+    }
+
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: "com.github.ben-manes.versions"
+    apply plugin: 'org.flywaydb.flyway'
+
+    apply from: "$rootDir/gradle/checkstyle.gradle"
+    apply from: "$rootDir/gradle/spotbugs.gradle"
+    apply from: "$rootDir/gradle/pmd.gradle"
+    apply from: "$rootDir/gradle/cpd.gradle"
+    apply from: "$rootDir/gradle/jacoco.gradle"
+
+    group = 'jp.co.project.planets'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter'
+        implementation 'org.springframework.boot:spring-boot-docker-compose'
+        implementation 'org.springframework.boot:spring-boot-testcontainers'
+        runtimeOnly 'com.mysql:mysql-connector-j'
+
+        // flyway
+        implementation 'org.flywaydb:flyway-core'
+        implementation 'org.flywaydb:flyway-mysql'
+
+        // util
+        implementation 'org.apache.commons:commons-lang3:3.12.0'
+        implementation 'org.apache.commons:commons-collections4:4.4'
+        implementation 'com.google.guava:guava:31.1-jre'
+        implementation 'org.mapstruct:mapstruct:1.5.3.Final'
+        annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+
+        // log
+        implementation 'net.logstash.logback:logstash-logback-encoder:7.3'
+
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.springframework.security:spring-security-test'
+        testImplementation 'org.mockito:mockito-inline:5.2.0'
+        testImplementation 'com.tngtech.archunit:archunit-junit5:1.0.1'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}

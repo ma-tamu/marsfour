@@ -1,0 +1,20 @@
+domaCodeGen {
+    dev {
+        url = datasourceUrl
+        user = datasourceUsername
+        password = datasourcePassword
+        schemaName = datasourceSchema
+        templateDir = file("$rootDir/repository/template")
+        ignoredTableNamePattern = 'marsfour_version'
+        entity {
+            packageName = 'jp.co.project.planets.marsfour.db.entity'
+            overwriteListener = true
+        }
+        dao {
+            packageName = 'jp.co.project.planets.marsfour.db.dao.base'
+            overwrite = true
+            suffix = 'BaseDao'
+            configClassName = 'jp.co.project.planets.marsfour.config.DomaConfig'
+        }
+    }
+}
