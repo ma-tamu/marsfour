@@ -7,7 +7,11 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 import jp.co.project.planets.marsfour.common.logic.PermissionLogic;
+import jp.co.project.planets.marsfour.webapp.security.model.dto.UserInfoDto;
 
+/**
+ * openid user info service
+ */
 @Service
 public class OidcUserInfoService extends OidcUserService {
 
@@ -21,10 +25,8 @@ public class OidcUserInfoService extends OidcUserService {
     public OidcUser loadUser(final OidcUserRequest userRequest) throws OAuth2AuthenticationException {
         final var oidcUser = super.loadUser(userRequest);
         final var permissionList = permissionLogic.findGrantedPermission(oidcUser.getSubject());
-        // TODO userInfoのsubjectには、ログインIDが格納されているのでユーザーIDを取得する必要がある。
-        return oidcUser;
-        //        return new UserInfoDto(oidcUser.getSubject(), oidcUser.getSubject(), permissionList, oidcUser.getUserInfo(),
-        //                oidcUser.getAuthorities(),
-        //                oidcUser.getIdToken());
+        return new UserInfoDto(oidcUser.getSubject(), oidcUser.getPreferredUsername(), oidcUser.getSubject(),
+                oidcUser.getLocale(), oidcUser.getZoneInfo(), permissionList, oidcUser.getUserInfo(),
+                oidcUser.getAuthorities(), oidcUser.getIdToken());
     }
 }

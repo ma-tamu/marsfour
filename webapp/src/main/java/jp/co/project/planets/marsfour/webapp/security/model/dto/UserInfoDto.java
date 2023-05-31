@@ -11,8 +11,9 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 import jp.co.project.planets.marsfour.emuns.Permission;
 
-public record UserInfoDto(String id, String name, List<Permission> permissions, OidcUserInfo userInfo,
-        Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken) implements OidcUser {
+public record UserInfoDto(String id, String loginId, String name, String language, String timezone,
+        List<Permission> permissions, OidcUserInfo userInfo, Collection<? extends GrantedAuthority> authorities,
+        OidcIdToken idToken) implements OidcUser {
 
     @Override
     public Map<String, Object> getClaims() {
@@ -21,7 +22,7 @@ public record UserInfoDto(String id, String name, List<Permission> permissions, 
 
     @Override
     public OidcUserInfo getUserInfo() {
-        return null;
+        return userInfo;
     }
 
     @Override
@@ -41,6 +42,6 @@ public record UserInfoDto(String id, String name, List<Permission> permissions, 
 
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 }
