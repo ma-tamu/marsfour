@@ -1,0 +1,53 @@
+ext {
+    ociImageName = System.getenv("registry_uri") + "/" + System.getenv("repository_name") + ":${buildVersion}"
+    ddServiceName = "ndid2-" + System.getenv("app_name")
+}
+
+tasks.register('appBuildImage') {
+    dependsOn 'copyEnvironmentFiles'
+    dependsOn 'bootBuildImage'
+    tasks.named('bootBuildImage').mustRunAfter 'copyEnvironmentFiles'
+}
+
+bootBuildImage {
+    builder = "paketobuildpacks/builder:buildpackless-tiny"
+    buildpacks = [
+            "gcr.io/paketo-buildpacks/amazon-corretto:7.8.2",
+            "gcr.io/paketo-buildpacks/java:8.6.0",
+            "nncdevel/paketo-newrelic-java-agent:0.0.1", // NewRelic
+    ]
+    imageName = "${ociImageName}"
+    publish = true
+    pullPolicy = "IF_NOT_PRESENT"
+    docker {
+        publishRegistry {
+            url = System.getenv("registry_uri")
+            username = "AWS"
+            password = System.getenv("ecr_pass")
+        }
+    }
+    environment = [
+            "BP_JVM_VERSION"              : "17.0.*",
+            "HTTP_PROXY"                  : System.getenv("HTTP_PROXY"),
+            "HTTPS_PROXY"                 : System.getenv("HTTPS_PROXY"),
+            "BPE_DELIM_JAVA_TOOL_OPTIONS" : " ",
+            "BPE_APPEND_JAVA_TOOL_OPTIONS": "" +
+                    "-Duser.timezone=Asia/Tokyo " +
+                    "-XX:MaxDirectMemorySize=256M " +
+                    "--add-opens=java.base/java.lang=ALL-UNNAMED " +
+                    "--add-opens=java.base/java.util=ALL-UNNAMED " +
+                    "-Dnewrelic.config.file=/workspace/BOOT-INF/classes/newrelic.yml", // NewRelic config
+    ]
+}
+
+tasks.register('copyEnvironmentFiles', Copy) {
+    from "${baseDirectory}/${resourcesDirectory}/release"
+    into "${baseDirectory}/${resourcesDirectory}"
+}
+
+tasks.register('createApplicationVersionTxt') {
+    doLast {
+        def file = new File("applicationVersion.txt")
+        file.write applicationVersion
+    }
+}

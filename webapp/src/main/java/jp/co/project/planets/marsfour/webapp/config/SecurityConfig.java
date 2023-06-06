@@ -27,18 +27,16 @@ public class SecurityConfig {
     /**
      * build security filter chain
      *
-     * @param http
-     *            http security
+     * @param http http security
      * @return SecurityFilterChain
-     * @throws Exception
-     *             security filter failed build
+     * @throws Exception security filter failed build
      */
     @Bean
     public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
         http.httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers("/login/oauth2/code/earthly", "/error", "/health", "/quickTEST",
+                                .requestMatchers("/welcome", "/login/oauth2/code/earthly", "/error", "/health", "/quickTEST",
                                         "/fullTEST", "/awesomeTEST")
                                 .permitAll().anyRequest().authenticated())
                 .oauth2Login(
